@@ -46,7 +46,7 @@ class SegmentationEvaluator:
 
     def train_yolov8(self, epochs=10):
         print("\nTraining YOLOv8...")
-        dataset = self.project.version(1).download("yolov8")
+        dataset = self.project.version(self.config["VERSION"]).download("yolov8")
         
         start_time = time.time()
         initial_resources = self.get_resource_usage()
@@ -65,7 +65,7 @@ class SegmentationEvaluator:
 
     def train_detectron2(self, epochs=10):
         print("\nTraining Detectron2...")
-        dataset = self.project.version(1).download("coco")
+        dataset = self.project.version(self.config["VERSION"]).download("coco")
         
         start_time = time.time()
         initial_resources = self.get_resource_usage()
@@ -144,7 +144,7 @@ class SegmentationEvaluator:
 
     def evaluate_inference_speed(self, model, num_iterations=50):
         print(f"Evaluating inference speed...")
-        test_dataset = self.project.version(1).download("yolov8")
+        test_dataset = self.project.version(self.config["VERSION"]).download("yolov8")
         test_images = [f for f in os.listdir(f"{test_dataset.location}/test/images") 
                       if f.endswith(('.jpg', '.png'))]
         
