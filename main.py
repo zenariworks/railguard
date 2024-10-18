@@ -1,7 +1,7 @@
 """Main module for the project."""
 from comparator.config import CONFIG
 from comparator.dataset import DatasetManager
-from comparator.model_trainers import RailTrackModelComparison
+from comparator.trainer import RailTrackModelComparison
 
 
 def main():
