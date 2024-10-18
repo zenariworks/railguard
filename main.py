@@ -1,41 +1,24 @@
 """Main module for the project."""
-
 from config import CONFIG
 from dataset import DatasetManager
-from models.model_trainers import ModelTrainer
-from utils import Evaluator
+from models.model_trainer import RailTrackModelComparison
 
 
 def main():
-    # Initialize dataset manager
+    # Initialize DatasetManager
     dataset_manager = DatasetManager(CONFIG)
 
-    # Initialize model trainer
-    trainer = ModelTrainer(CONFIG, dataset_manager)
+    # Download YOLOv8 format
+    yolo_path = dataset_manager.download_dataset(data_format="yolov8")
 
-    # Initialize evaluator
-    evaluator = Evaluator(CONFIG)
+    # Download COCO format
+    coco_path = dataset_manager.download_dataset(data_format="coco")
 
-    # Train and evaluate models
-    models_to_train = {
-        "YOLOv8": trainer.train_yolov8,
-        "Detectron2": trainer.train_detectron2,
-        "BiSeNet": trainer.train_bisenet,
-        "DeepLabV3": trainer.train_deeplabv3,
-    }
+    # Initialize comparison framework
+    comparison = RailTrackModelComparison(CONFIG)
 
-    for model_name, train_func in models_to_train.items():
-        try:
-            print(f"\nTraining {model_name}...")
-            model_data = train_func()
-            evaluator.evaluate_model(model_name, model_data, dataset_manager)
-        except Exception as e:
-            print(f"Error training {model_name}: {str(e)}")
-
-    # Generate final report
-    report_path = evaluator.generate_report()
-    print(f"\nComparison report saved to: {report_path}")
-    print("Visualization saved to: results/comparison_plots.png")
+    # Run complete comparison
+    comparison.run_comparison()
 
 
 if __name__ == "__main__":
