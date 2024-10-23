@@ -36,7 +36,7 @@ class RailTrackModelComparison:
         # Validate paths
         if not self.version_dir.exists():
             raise FileNotFoundError(f"Version directory not found: {self.version_dir}")
-        
+
         # Initialize metrics storage
         self.metrics = {
             "yolov8": {"train": {}, "inference": {}, "predictions": []},

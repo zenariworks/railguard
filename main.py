@@ -9,10 +9,10 @@ def main():
     dataset_manager = DatasetManager(CONFIG)
 
     # Download YOLOv8 format
-    yolo_path = dataset_manager.download_dataset(data_format="yolov8")
+    yolo_path = dataset_manager.download(data_format="yolov8")
 
     # Download COCO format
-    coco_path = dataset_manager.download_dataset(data_format="coco")
+    coco_path = dataset_manager.download(data_format="coco")
 
     # Initialize comparison framework
     comparison = RailTrackModelComparison(CONFIG)
