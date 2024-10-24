@@ -1,25 +1,35 @@
 """Main module for the project."""
 
 import json
+from pathlib import Path
 
 from comparator.config import CONFIG
 from comparator.dataset import DatasetManager
-from comparator.trainer import RailTrackModelComparison
+from comparator.trainer import RailTrackModelComparison, is_colab
 
 
-def is_colab() -> bool:
-    """Check if running in Google Colab."""
-    try:
-        from google import colab
+def setup_colab():
+    """Setup Google Drive in Colab and return the base path."""
+    if not is_colab():
+        return None
 
-        return True
-    except ImportError:
-        return False
+    print("Running in Google Colab environment...")
+
+    # Check if drive is already mounted
+    if not Path("/content/drive").exists():
+        print(
+            "Please run the following commands in separate cells before running this script:"
+        )
+        print("\nfrom google.colab import drive")
+        print("drive.mount('/content/drive')")
+        raise RuntimeError("Google Drive not mounted. Please mount it first.")
+
+    return "/content/drive/MyDrive"
 
 
 def main():
-    # Initialize with Google Drive if in Colab
-    use_drive = is_colab()
+    # Setup for Colab if needed
+    drive_base_path = setup_colab()
 
     # Initialize DatasetManager
     dataset_manager = DatasetManager(CONFIG)
@@ -29,7 +39,7 @@ def main():
     coco_path = dataset_manager.download(data_format="coco")
 
     # Initialize model comparison
-    trainer = RailTrackModelComparison(CONFIG, use_drive=use_drive)
+    trainer = RailTrackModelComparison(CONFIG, drive_base_path=drive_base_path)
 
     try:
         # Check for previous checkpoint
@@ -37,7 +47,7 @@ def main():
         if checkpoint_file.exists():
             with open(checkpoint_file, "r") as f:
                 checkpoint = json.load(f)
-                last_completed = checkpoint.get("last_completed", "yolov8")
+                last_completed = checkpoint.get("last_completed", None)
                 print(f"Resuming from checkpoint. Last completed: {last_completed}")
                 print(f"Checkpoint timestamp: {checkpoint.get('timestamp', 'unknown')}")
         else:
@@ -77,11 +87,11 @@ def main():
         print(f"\nAn error occurred: {str(e)}")
         print("Progress has been saved and can be resumed.")
     finally:
-        if use_drive:
+        if drive_base_path:
             print(
                 "\nAll results have been saved to Google Drive under 'rail_track_comparison' folder."
             )
-            print("You can access them even if the Colab session ends.")
+            print(f"Full path: {trainer.base_path}")
 
 
 if __name__ == "__main__":
