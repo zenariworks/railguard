@@ -1,6 +1,7 @@
 """Trainer module for comparing different object detection models with Colab support."""
 
 import json
+import os
 import time
 from pathlib import Path
 from typing import Dict, Optional
@@ -14,30 +15,37 @@ from detectron2.engine import DefaultTrainer
 from ultralytics import YOLO
 
 
+def is_colab() -> bool:
+    """Check if running in Google Colab."""
+    try:
+        import google.colab
+
+        return True
+    except ImportError:
+        return False
+
+
 class RailTrackModelComparison:
     """Handles training and comparison of different object detection models."""
 
-    def __init__(self, config: dict, use_drive: bool = False):
+    def __init__(self, config: dict, drive_base_path: Optional[str] = None):
         """
         Initialize the trainer with configuration.
 
         Args:
             config (dict): Configuration dictionary
-            use_drive (bool): Whether to use Google Drive for storage
+            drive_base_path (str, optional): Base path in Google Drive if using Colab
+                                           Should be mounted before passing
         """
         self.config = config
-        self.use_drive = use_drive
 
-        if self.use_drive:
-            try:
-                from google.colab import drive
-
-                drive.mount("/content/drive")
-                self.base_path = Path("/content/drive/MyDrive/rail_track_comparison")
-            except ImportError:
-                print("Google Colab import failed. Falling back to local storage.")
-                self.use_drive = False
-                self.base_path = Path("results")
+        # Set up base path
+        if drive_base_path and is_colab():
+            if not os.path.exists(drive_base_path):
+                raise ValueError(
+                    "Drive path not found. Please mount Google Drive first and provide correct path."
+                )
+            self.base_path = Path(drive_base_path) / "rail_track_comparison"
         else:
             self.base_path = Path("results")
 
@@ -50,6 +58,8 @@ class RailTrackModelComparison:
         self.results_file = self.results_dir / "comparison_results.json"
         self.checkpoint_file = self.results_dir / "checkpoint.json"
         self.results = self._load_previous_results()
+
+        print(f"Results will be saved to: {self.base_path}")
 
     def _load_previous_results(self) -> dict:
         """Load previous results if they exist."""
