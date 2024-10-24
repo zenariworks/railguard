@@ -7,7 +7,6 @@ from pathlib import Path
 import detectron2
 import matplotlib.pyplot as plt
 import psutil
-import torch
 from detectron2.config import get_cfg
 from detectron2.data.datasets import register_coco_instances
 from detectron2.engine import DefaultPredictor, DefaultTrainer
