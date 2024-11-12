@@ -35,7 +35,7 @@ class RailTrackModelComparison:
         Args:
             config (dict): Configuration dictionary
             drive_base_path (str, optional): Base path in Google Drive if using Colab
-                                           Should be mounted before passing
+            Should be mounted before passing
         """
         self.config = config
 
